@@ -9,7 +9,7 @@
         {
             base.OnExecute();
             float first = Utilities.ToNumber(GetValueOfInput<object>("INPUT"));
-            SetValue(Math.Cos(first));
+            SetValue((float)Math.Cos(first));
             return true;
         }
     }

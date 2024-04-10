@@ -12,11 +12,6 @@ namespace ConsoleApp1.src
         public void Setup()
         {
             NodeManager.OnTick = OnTick;
-            RandomBooleanNode nodeB = NodeManager.Add<RandomBooleanNode>();
-            nodeB.SetSetting<long>("Interval", 1000);
-            OrNode nodeA = NodeManager.Add<OrNode>();
-            nodeA.Connect(nodeB, "A", "OUTPUT");
-
 
             TickNode tickNode = NodeManager.Add<TickNode>();
 
@@ -28,13 +23,13 @@ namespace ConsoleApp1.src
             divideNode.Connect(tickNode, "A", "OUTPUT");
             divideNode.Connect(constantNode1, "B", "OUTPUT");
 
-            ConstantNode constantNode = NodeManager.Add<ConstantNode>();
-            constantNode.SetSetting("Value", 10f);
-
-
 
             SinNode sinNode = NodeManager.Add<SinNode>();
             sinNode.Connect(divideNode, "INPUT", "OUTPUT");
+
+
+            ConstantNode constantNode = NodeManager.Add<ConstantNode>();
+            constantNode.SetSetting("Value", 10f);
 
             MultiplyNode multiplyNode = NodeManager.Add<MultiplyNode>();
             multiplyNode.Connect(constantNode, "A", "OUTPUT");
@@ -44,6 +39,12 @@ namespace ConsoleApp1.src
             roundNode.Connect(multiplyNode, "INPUT", "OUTPUT");
 
 
+            ConstantNode constantNode2 = NodeManager.Add<ConstantNode>();
+            constantNode2.SetSetting("Value", 5f);
+
+            GreaterThanNode gtNode = NodeManager.Add<GreaterThanNode>();
+            gtNode.Connect(roundNode, "A", "OUTPUT");
+            gtNode.Connect(constantNode2, "B", "OUTPUT");
         }
 
         public void OnTick()

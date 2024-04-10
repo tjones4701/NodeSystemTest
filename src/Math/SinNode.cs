@@ -9,7 +9,7 @@
         {
             base.OnExecute();
             float first = Utilities.ToNumber(GetValueOfInput<object>("INPUT"));
-            SetValue(Math.Sin(first));
+            SetValue((float)Math.Sin(first));
             return true;
         }
     }

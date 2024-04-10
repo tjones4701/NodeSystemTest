@@ -33,5 +33,31 @@
                 return 0;
             }
         }
+
+        public static bool ToBoolean(object? val)
+        {
+            if (val == null)
+            {
+                return false;
+            }
+
+            if (val is bool)
+            {
+                return (bool)val;
+            }
+            if (val is float f)
+            {
+                return f != 0;
+            }
+
+            try
+            {
+                return Boolean.Parse(val?.ToString() ?? "0");
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
     }
 }
