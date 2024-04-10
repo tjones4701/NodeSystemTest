@@ -2,6 +2,36 @@
 {
     public static partial class Utilities
     {
+
+
+        public static object? ConvertToType(object? val, Type type)
+        {
+            if (val == null)
+            {
+                return null;
+            }
+
+            if (val.GetType() == type)
+            {
+                return val;
+            }
+            if (type == typeof(float))
+            {
+                return ToNumber(val);
+            }
+            if (type == typeof(bool))
+            {
+                return ToBoolean(val);
+            }
+            Type otherType = val.GetType();
+
+            // Check if otherType is castable to type
+            if (type.IsAssignableFrom(otherType))
+            {
+                return val;
+            }
+            return null;
+        }
         public static float ToNumber(object? val)
         {
             if (val == null)

@@ -1,4 +1,6 @@
-﻿namespace DEGG.NodeSystem
+﻿using ConsoleApp1.src.Utility;
+
+namespace DEGG.NodeSystem
 {
 
     public class Node
@@ -11,7 +13,7 @@
         public object? Value { get; set; }
         public bool IsSetup { get; set; } = false;
         // Custom getter for NodeInformationAttribute
-        public NodeInformationAttribute NodeInformation => GetType().GetCustomAttributes(typeof(NodeInformationAttribute), true).FirstOrDefault() as NodeInformationAttribute ?? new NodeInformationAttribute("Unknown", "Unknown");
+        public NodeInformationAttribute NodeInformation => Reflection.GetAttribute<NodeInformationAttribute>(this) ?? new NodeInformationAttribute("Unknown", "Unknown");
 
         public T? GetSetting<T>(string key)
         {
@@ -56,26 +58,45 @@
                 return;
             }
 
+            Logging.Log("Setting up node: " + this + " of type " + GetType().Name);
+
             // Get a list of all the attributes of type NodeOutputAttribute
-            object[] outputAttributes = GetType().GetCustomAttributes(typeof(NodeOutputAttribute), true);
+            List<NodeOutputAttribute> outputAttributes = Reflection.GetAttributes<NodeOutputAttribute>(this);
             foreach (NodeOutputAttribute attribute in outputAttributes)
             {
                 AddOutput(attribute.Name);
             }
 
             // Get a list of all the attributes of type NodeInputAttribute
-            object[] inputAttributes = GetType().GetCustomAttributes(typeof(NodeInputAttribute), true);
+            List<NodeInputAttribute> inputAttributes = Reflection.GetAttributes<NodeInputAttribute>(this);
             foreach (NodeInputAttribute attribute in inputAttributes)
             {
                 AddInput(attribute.Name);
             }
 
             // Get a list of all the attributes of type NodeInputAttribute
-            object[] settingAttributes = GetType().GetCustomAttributes(typeof(NodeSettingAttribute), true);
+            List<NodeSettingAttribute> settingAttributes = Reflection.GetAttributes<NodeSettingAttribute>(this);
             foreach (NodeSettingAttribute attribute in settingAttributes)
             {
                 Settings[attribute.Name.ToUpper()] = new NodeSetting(attribute);
             }
+
+            // Get a list of all the attributes of type NodeInputAttribute
+            List<System.Reflection.PropertyInfo> testAttributes = Reflection.GetProperties<NodeInput2Attribute>(this);
+            foreach (System.Reflection.PropertyInfo property in testAttributes)
+            {
+                NodeInput2Attribute? attribute = property.GetCustomAttributes(true).OfType<NodeInput2Attribute>().FirstOrDefault();
+                if (attribute != null)
+                {
+                    InputNodeConnector input = new InputNodeConnector { Name = name, Parent = this };
+                    if (property.DeclaringType != null)
+                    {
+                        input.ValidTypes.Add(property.DeclaringType);
+                    }
+                    AddInput(nodeInput);
+                }
+            }
+
             OnSetup();
             IsSetup = true;
         }
@@ -84,9 +105,11 @@
 
         }
 
-        public InputNodeConnector AddInput(string name)
+        public void AddInput(InputNodeConnector input)
         {
-            return AddInput<InputNodeConnector>(name);
+
+            Inputs.Add(input);
+
         }
 
         public InputNodeConnector AddInput<T>(string name) where T : InputNodeConnector, new()
@@ -101,6 +124,10 @@
             return input;
         }
 
+        public NodeConnector AddOutput(string name)
+        {
+            return AddOutput<NodeConnector>(name);
+        }
         public NodeConnector AddOutput(string name)
         {
             return AddOutput<NodeConnector>(name);

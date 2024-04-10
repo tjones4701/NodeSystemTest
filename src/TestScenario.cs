@@ -17,34 +17,45 @@ namespace ConsoleApp1.src
 
 
             ConstantNode constantNode1 = NodeManager.Add<ConstantNode>();
-            constantNode1.SetSetting("Value", 10000f);
-
-            DivideNode divideNode = NodeManager.Add<DivideNode>();
-            divideNode.Connect(tickNode, "A", "OUTPUT");
-            divideNode.Connect(constantNode1, "B", "OUTPUT");
-
-
-            SinNode sinNode = NodeManager.Add<SinNode>();
-            sinNode.Connect(divideNode, "INPUT", "OUTPUT");
-
-
-            ConstantNode constantNode = NodeManager.Add<ConstantNode>();
-            constantNode.SetSetting("Value", 10f);
-
-            MultiplyNode multiplyNode = NodeManager.Add<MultiplyNode>();
-            multiplyNode.Connect(constantNode, "A", "OUTPUT");
-            multiplyNode.Connect(sinNode, "B", "OUTPUT");
-
-            RoundNode roundNode = NodeManager.Add<RoundNode>();
-            roundNode.Connect(multiplyNode, "INPUT", "OUTPUT");
-
+            constantNode1.SetSetting("Value", 1f);
 
             ConstantNode constantNode2 = NodeManager.Add<ConstantNode>();
-            constantNode2.SetSetting("Value", 5f);
+            constantNode1.SetSetting("Value", 2f);
 
-            GreaterThanNode gtNode = NodeManager.Add<GreaterThanNode>();
-            gtNode.Connect(roundNode, "A", "OUTPUT");
-            gtNode.Connect(constantNode2, "B", "OUTPUT");
+            AddNode addNode = NodeManager.Add<AddNode>();
+            addNode.Connect(constantNode1, "A", "OUTPUT");
+            addNode.Connect(constantNode2, "B", "OUTPUT");
+
+
+            //ConstantNode constantNode1 = NodeManager.Add<ConstantNode>();
+            //constantNode1.SetSetting("Value", 10000f);
+
+            //DivideNode divideNode = NodeManager.Add<DivideNode>();
+            //divideNode.Connect(tickNode, "A", "OUTPUT");
+            //divideNode.Connect(constantNode1, "B", "OUTPUT");
+
+
+            //SinNode sinNode = NodeManager.Add<SinNode>();
+            //sinNode.Connect(divideNode, "INPUT", "OUTPUT");
+
+
+            //ConstantNode constantNode = NodeManager.Add<ConstantNode>();
+            //constantNode.SetSetting("Value", 10f);
+
+            //MultiplyNode multiplyNode = NodeManager.Add<MultiplyNode>();
+            //multiplyNode.Connect(constantNode, "A", "OUTPUT");
+            //multiplyNode.Connect(sinNode, "B", "OUTPUT");
+
+            //RoundNode roundNode = NodeManager.Add<RoundNode>();
+            //roundNode.Connect(multiplyNode, "INPUT", "OUTPUT");
+
+
+            //ConstantNode constantNode2 = NodeManager.Add<ConstantNode>();
+            //constantNode2.SetSetting("Value", 5f);
+
+            //GreaterThanNode gtNode = NodeManager.Add<GreaterThanNode>();
+            //gtNode.Connect(roundNode, "A", "OUTPUT");
+            //gtNode.Connect(constantNode2, "B", "OUTPUT");
         }
 
         public void OnTick()

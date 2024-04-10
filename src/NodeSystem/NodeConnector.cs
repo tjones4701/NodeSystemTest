@@ -3,11 +3,16 @@
 
     public class NodeConnector
     {
+
+
         public string Name { get; set; } = "name";
         public Node? Parent { get; set; }
         public List<NodeConnection> Connections { get; set; } = new List<NodeConnection>();
         public virtual int MaxConnections { get; set; }
         public object? Value { get; set; }
+
+        public List<Type> ValidTypes { get; set; } = new();
+
 
         public void RemoveConnection(NodeConnection connection)
         {
@@ -18,6 +23,27 @@
         public bool IsConnected()
         {
             return Connections.Count > 0;
+        }
+
+        public bool CanConnect(NodeConnector other)
+        {
+            List<Type> myTypes = ValidTypes;
+            List<Type> otherTypes = other.ValidTypes;
+            if (myTypes.Count == 0 || otherTypes.Count == 0)
+            {
+                return false;
+            }
+            foreach (Type myType in myTypes)
+            {
+                foreach (Type otherType in otherTypes)
+                {
+                    if (myType.IsAssignableFrom(otherType))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
 

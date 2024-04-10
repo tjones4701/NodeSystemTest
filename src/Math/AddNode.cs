@@ -6,12 +6,15 @@
     [NodeInput("B", [typeof(bool), typeof(string), typeof(float)])]
     public class AddNode : Node
     {
+        [NodeInput2("A")]
+        public float InputA { get; set; }
+
+        [NodeInput2("B")]
+        public float InputB { get; set; }
         public override bool OnExecute()
         {
             base.OnExecute();
-            float first = Utilities.ToNumber(GetValueOfInput<object>("A"));
-            float second = Utilities.ToNumber(GetValueOfInput<object>("B"));
-            SetValue(first + second);
+            SetValue(InputA + InputB);
             return true;
         }
     }

@@ -6,7 +6,21 @@ TestScenario test = new TestScenario();
 test.Setup();
 
 
-Console.WriteLine("Press key to trigger a tick...");
+
+
+bool hasStarted = false;
+while (hasStarted == false)
+{
+    Console.WriteLine("Press Space to start ...");
+    ConsoleKeyInfo keyPressed = Console.ReadKey();
+    if (keyPressed.Key == ConsoleKey.Spacebar)
+    {
+        hasStarted = true;
+    }
+}
+
+
+
 
 Thread thread = new Thread(() => test.Run());
 thread.Start();
