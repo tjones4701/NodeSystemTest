@@ -1,17 +1,23 @@
-﻿namespace ConsoleApp1.src.Logic
+﻿namespace DEGG.NodeSystem.Nodes
 {
+    [NodeInformation("Logic/Constant", "Outputs a constant float")]
+    [NodeOutput("OUTPUT", typeof(float))]
+    [NodeSetting("Value", "The value to output", typeof(float))]
     internal class ConstantNode : Node
     {
-        public override void OnSetup()
-        {
-            base.OnSetup();
-            AddOutput("OUTPUT");
-        }
 
-        public override void OnExecute()
+        public override bool OnExecute()
         {
             base.OnExecute();
-            SetValue(1);
+            SetValue(GetSetting<float>("Value"));
+            return true;
+        }
+
+        public override void OnSettingchange(NodeSetting setting)
+        {
+            base.OnSettingchange(setting);
+            Value = GetSetting<float>("Value");
+            SetValue(Value);
         }
     }
 }
