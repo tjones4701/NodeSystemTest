@@ -3,6 +3,7 @@
 
     public class NodeNetwork
     {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
         public List<Node> Nodes { get; set; } = new List<Node>();
         public NodeLinkListItem? FirstItem { get; set; }
         /**

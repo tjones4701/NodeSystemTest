@@ -2,14 +2,14 @@
 {
     [NodeInformation("Math/Floor")]
     [NodeOutput("OUTPUT", typeof(float))]
-    [NodeInput("INPUT", [typeof(bool), typeof(string), typeof(float)])]
     public class FloorNode : Node
     {
+        [NodeInput("Input")]
+        public float Input { get; set; }
         public override bool OnExecute()
         {
-            base.OnExecute();
-            float first = Utilities.ToNumber(GetValueOfInput<object>("INPUT"));
-            SetValue((float)Math.Floor(first));
+            base.OnExecute(); ;
+            SetValue("OUTPUT", (float)Math.Floor(Input));
             return true;
         }
     }

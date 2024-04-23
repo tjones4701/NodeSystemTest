@@ -2,9 +2,9 @@
 
 namespace DEGG.NodeSystem
 {
-
     public class Node
     {
+        public string Id { get; set; } = System.Guid.NewGuid().ToString();
         public NodeNetwork? Network { get; set; }
         public List<InputNodeConnector> Inputs { get; set; } = new();
         public List<NodeConnector> Outputs { get; set; } = new();
@@ -67,12 +67,6 @@ namespace DEGG.NodeSystem
                 AddOutput(attribute.Name);
             }
 
-            // Get a list of all the attributes of type NodeInputAttribute
-            List<NodeInputAttribute> inputAttributes = Reflection.GetAttributes<NodeInputAttribute>(this);
-            foreach (NodeInputAttribute attribute in inputAttributes)
-            {
-                AddInput(attribute.Name);
-            }
 
             // Get a list of all the attributes of type NodeInputAttribute
             List<NodeSettingAttribute> settingAttributes = Reflection.GetAttributes<NodeSettingAttribute>(this);
@@ -82,18 +76,18 @@ namespace DEGG.NodeSystem
             }
 
             // Get a list of all the attributes of type NodeInputAttribute
-            List<System.Reflection.PropertyInfo> testAttributes = Reflection.GetProperties<NodeInput2Attribute>(this);
+            List<System.Reflection.PropertyInfo> testAttributes = Reflection.GetProperties<NodeInputAttribute>(this);
             foreach (System.Reflection.PropertyInfo property in testAttributes)
             {
-                NodeInput2Attribute? attribute = property.GetCustomAttributes(true).OfType<NodeInput2Attribute>().FirstOrDefault();
+                NodeInputAttribute? attribute = property.GetCustomAttributes(true).OfType<NodeInputAttribute>().FirstOrDefault();
                 if (attribute != null)
                 {
-                    InputNodeConnector input = new InputNodeConnector { Name = name, Parent = this };
+                    InputNodeConnector input = new InputNodeConnector(this, attribute, property);
                     if (property.DeclaringType != null)
                     {
                         input.ValidTypes.Add(property.DeclaringType);
                     }
-                    AddInput(nodeInput);
+                    AddInput(input);
                 }
             }
 
@@ -107,8 +101,18 @@ namespace DEGG.NodeSystem
 
         public void AddInput(InputNodeConnector input)
         {
-
             Inputs.Add(input);
+        }
+
+        public Dictionary<string, object?> GetValues()
+        {
+            Dictionary<string, object?> outputs = new Dictionary<string, object?>();
+            foreach (NodeConnector output in Outputs)
+            {
+                outputs[output.Name] = output.Value;
+            }
+
+            return outputs;
 
         }
 
@@ -124,10 +128,6 @@ namespace DEGG.NodeSystem
             return input;
         }
 
-        public NodeConnector AddOutput(string name)
-        {
-            return AddOutput<NodeConnector>(name);
-        }
         public NodeConnector AddOutput(string name)
         {
             return AddOutput<NodeConnector>(name);
@@ -152,7 +152,7 @@ namespace DEGG.NodeSystem
 
         public NodeConnector AddOutput<T>(string name) where T : NodeConnector, new()
         {
-            NodeConnector? existing = GetInputByName(name);
+            NodeConnector? existing = GetOutputByName(name);
             if (existing != null)
             {
                 return existing;
@@ -165,23 +165,13 @@ namespace DEGG.NodeSystem
 
         public InputNodeConnector? GetInputByName(string name)
         {
-            InputNodeConnector? input = Inputs.FirstOrDefault(x => x.Name == name);
+            name = name.ToUpper();
+            InputNodeConnector? input = Inputs.FirstOrDefault(x => (x.Name?.ToUpper() == name || x?.Attribute?.Name?.ToUpper() == name || x?.PropertyInfo?.Name?.ToUpper() == name));
             return input;
         }
         public NodeConnector? GetOutputByName(string name)
         {
             return Outputs.FirstOrDefault(x => x.Name == name);
-        }
-
-
-
-        public T? GetValue<T>()
-        {
-            if (Value is T val)
-            {
-                return val;
-            }
-            return default;
         }
 
         public object? GetValueOfInput(string name)
@@ -196,17 +186,18 @@ namespace DEGG.NodeSystem
             {
                 throw new InvalidOperationException($"Input {name} not found on node {this}");
             }
-            return input.GetValue<T>();
+            object? obj = input?.PropertyInfo?.GetValue(this);
+            if (obj == null)
+            {
+                return default;
+            }
+            return (T?)Utilities.ConvertToType(obj, typeof(T));
         }
 
-        public void SetValue(object value)
+        public void SetValue(string name, object value)
         {
-            bool hasChanged = !EqualityComparer<object>.Default.Equals(Value, value);
-            Value = value;
-            if (hasChanged)
-            {
-                TriggerChange();
-            }
+            NodeConnector? outputConnector = GetOutputByName(name);
+            outputConnector?.SetValue(value);
         }
 
         public void SelfExecute()
@@ -222,26 +213,27 @@ namespace DEGG.NodeSystem
             }
         }
 
-        public Dictionary<string, T?> GetValueOfInputs<T>()
-        {
-            Dictionary<string, T?> values = new Dictionary<string, T?>();
-            for (int i = 0; i < Inputs.Count; i++)
-            {
-                InputNodeConnector input = Inputs[i];
-                if (input.IsConnected())
-                {
-                    values[Inputs[i].Name] = Inputs[i].GetValue<T>();
-                }
-            }
-            return values;
-        }
-
         public bool Execute()
         {
             if (!IsSetup)
             {
                 return false;
             }
+            foreach (InputNodeConnector i in Inputs)
+            {
+                if (!i.IsConnected())
+                {
+                    return false;
+                }
+                Type? propertyType = i.PropertyInfo?.PropertyType;
+                if (propertyType == null)
+                {
+                    continue;
+                }
+                object? data = Utilities.ConvertToType(i.GetValue(), propertyType);
+                i.PropertyInfo?.SetValue(this, data);
+            }
+
             return OnExecute();
         }
 

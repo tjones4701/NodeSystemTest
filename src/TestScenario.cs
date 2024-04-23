@@ -15,7 +15,6 @@ namespace ConsoleApp1.src
 
             TickNode tickNode = NodeManager.Add<TickNode>();
 
-
             ConstantNode constantNode1 = NodeManager.Add<ConstantNode>();
             constantNode1.SetSetting("Value", 1f);
 
@@ -24,38 +23,39 @@ namespace ConsoleApp1.src
 
             AddNode addNode = NodeManager.Add<AddNode>();
             addNode.Connect(constantNode1, "A", "OUTPUT");
-            addNode.Connect(constantNode2, "B", "OUTPUT");
+            addNode.Connect(tickNode, "B", "OUTPUT");
 
 
-            //ConstantNode constantNode1 = NodeManager.Add<ConstantNode>();
-            //constantNode1.SetSetting("Value", 10000f);
-
-            //DivideNode divideNode = NodeManager.Add<DivideNode>();
-            //divideNode.Connect(tickNode, "A", "OUTPUT");
-            //divideNode.Connect(constantNode1, "B", "OUTPUT");
+            ConstantNode constantNodeOr = NodeManager.Add<ConstantNode>();
+            constantNode1.SetSetting("Value", true);
 
 
-            //SinNode sinNode = NodeManager.Add<SinNode>();
-            //sinNode.Connect(divideNode, "INPUT", "OUTPUT");
+            DivideNode divideNode = NodeManager.Add<DivideNode>();
+            divideNode.Connect(tickNode, "A", "OUTPUT");
+            divideNode.Connect(constantNode1, "B", "OUTPUT");
 
 
-            //ConstantNode constantNode = NodeManager.Add<ConstantNode>();
-            //constantNode.SetSetting("Value", 10f);
-
-            //MultiplyNode multiplyNode = NodeManager.Add<MultiplyNode>();
-            //multiplyNode.Connect(constantNode, "A", "OUTPUT");
-            //multiplyNode.Connect(sinNode, "B", "OUTPUT");
-
-            //RoundNode roundNode = NodeManager.Add<RoundNode>();
-            //roundNode.Connect(multiplyNode, "INPUT", "OUTPUT");
+            SinNode sinNode = NodeManager.Add<SinNode>();
+            sinNode.Connect(divideNode, "INPUT", "OUTPUT");
 
 
-            //ConstantNode constantNode2 = NodeManager.Add<ConstantNode>();
-            //constantNode2.SetSetting("Value", 5f);
+            ConstantNode constantNode = NodeManager.Add<ConstantNode>();
+            constantNode.SetSetting("Value", 10f);
 
-            //GreaterThanNode gtNode = NodeManager.Add<GreaterThanNode>();
-            //gtNode.Connect(roundNode, "A", "OUTPUT");
-            //gtNode.Connect(constantNode2, "B", "OUTPUT");
+            MultiplyNode multiplyNode = NodeManager.Add<MultiplyNode>();
+            multiplyNode.Connect(constantNode, "A", "OUTPUT");
+            multiplyNode.Connect(sinNode, "B", "OUTPUT");
+
+            RoundNode roundNode = NodeManager.Add<RoundNode>();
+            roundNode.Connect(multiplyNode, "INPUT", "OUTPUT");
+
+
+            ConstantNode constantNode3 = NodeManager.Add<ConstantNode>();
+            constantNode2.SetSetting("Value", 5f);
+
+            GreaterThanNode gtNode = NodeManager.Add<GreaterThanNode>();
+            gtNode.Connect(roundNode, "A", "OUTPUT");
+            gtNode.Connect(constantNode2, "B", "OUTPUT");
         }
 
         public void OnTick()
@@ -74,7 +74,12 @@ namespace ConsoleApp1.src
             for (int i = 0; i < nodes.Count; i++)
             {
                 Node node = nodes[i];
-                Console.WriteLine($"N{i} - {node.NodeInformation.Name} - {nodes[i].Value}");
+                Dictionary<string, object?> values = node.GetValues();
+                Console.WriteLine($"N{i} - {node.NodeInformation.Name}");
+                foreach (KeyValuePair<string, object> kv in values)
+                {
+                    Console.WriteLine($"  {kv.Key} - {kv.Value}");
+                }
             }
         }
 

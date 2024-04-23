@@ -1,28 +1,23 @@
-﻿using System.Reflection;
-
-namespace DEGG.NodeSystem
+﻿namespace DEGG.NodeSystem
 {
 
     public class InputNodeConnector : NodeConnector
     {
-        public NodeInput2Attribute? Attribute { get; set; }
+        public NodeInputAttribute? Attribute { get; set; }
 
         public System.Reflection.PropertyInfo? PropertyInfo { get; set; }
 
-        public NodeInput(Node parent, NodeInput2Attribute attribute, System.Reflection.PropertyInfo propertyInfo)
+        public InputNodeConnector(Node parent, NodeInputAttribute attribute, System.Reflection.PropertyInfo propertyInfo)
         {
             Parent = parent;
             Attribute = attribute;
             PropertyInfo = propertyInfo;
         }
 
-        public InputNodeConnector(Node parent, NodeInput2Attribute attribute, PropertyInfo propertyInfo) : base(parent, attribute, propertyInfo)
-        {
-        }
 
         public override int MaxConnections { get; set; } = 1;
 
-        public T? GetValue<T>()
+        public object? GetValue()
         {
             NodeConnection? connection = Connections.FirstOrDefault();
             if (connection == null)
@@ -33,7 +28,7 @@ namespace DEGG.NodeSystem
             {
                 return default;
             }
-            return connection.From.Parent.GetValue<T>();
+            return connection.From.Value;
         }
     }
 }

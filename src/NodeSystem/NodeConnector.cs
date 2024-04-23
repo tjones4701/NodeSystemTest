@@ -3,8 +3,6 @@
 
     public class NodeConnector
     {
-
-
         public string Name { get; set; } = "name";
         public Node? Parent { get; set; }
         public List<NodeConnection> Connections { get; set; } = new List<NodeConnection>();
@@ -14,10 +12,21 @@
         public List<Type> ValidTypes { get; set; } = new();
 
 
+
         public void RemoveConnection(NodeConnection connection)
         {
             Connections.Remove(connection);
             connection.To.Connections.Remove(connection);
+        }
+
+        public void SetValue(object? value)
+        {
+            bool hasChanged = !EqualityComparer<object>.Default.Equals(Value, value);
+            Value = value;
+            if (hasChanged)
+            {
+                OnChange();
+            }
         }
 
         public bool IsConnected()
@@ -33,6 +42,11 @@
             {
                 return false;
             }
+            if (Parent?.Network?.Id == null && Parent?.Network?.Id == other.Parent?.Network?.Id)
+            {
+                return false;
+            }
+
             foreach (Type myType in myTypes)
             {
                 foreach (Type otherType in otherTypes)

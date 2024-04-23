@@ -9,7 +9,7 @@
         public override bool OnExecute()
         {
             base.OnExecute();
-            SetValue(GetSetting<float>("Value"));
+            SetValue("OUTPUT", GetSetting<float>("Value"));
             return true;
         }
 
@@ -17,7 +17,7 @@
         {
             base.OnSettingchange(setting);
             Value = GetSetting<float>("Value");
-            SetValue(Value);
+            SetValue("OUTPUT", Value);
         }
     }
 }

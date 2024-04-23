@@ -8,7 +8,7 @@
         public override void OnTick()
         {
             long now = Network?.CurrentTick ?? 0;
-            SetValue(now);
+            SetValue("OUTPUT", now);
         }
     }
 }
